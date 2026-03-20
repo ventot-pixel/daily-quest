@@ -89,7 +89,7 @@ export default function TaskCard({ task, dayTask, onCheckboxTap, isPerfectDay }:
             )}
             {hasSubtasks && (
               <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length} steps
+                {task.subtasks.length} sub quest{task.subtasks.length !== 1 ? 's' : ''}
               </span>
             )}
             {task.priority === 'high' && (
@@ -132,25 +132,18 @@ export default function TaskCard({ task, dayTask, onCheckboxTap, isPerfectDay }:
           borderTop: 'none',
           padding: '8px 16px 12px 56px',
         }}>
-          {task.subtasks.map(sub => (
+          {task.subtasks.map((sub, idx) => (
             <div key={sub.id} style={{
               display: 'flex', alignItems: 'center', gap: 10,
               padding: '7px 0',
-              borderBottom: '1px solid var(--border)',
+              borderBottom: idx < task.subtasks.length - 1 ? '1px solid var(--border)' : 'none',
             }}>
               <div style={{
                 width: 18, height: 18, borderRadius: 9, flexShrink: 0,
-                border: `2px solid ${sub.completed ? catColor[task.category] : 'var(--border)'}`,
-                background: sub.completed ? catColor[task.category] : 'transparent',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                {sub.completed && <span style={{ color: '#000', fontSize: 10, fontWeight: 800 }}>✓</span>}
-              </div>
-              <span style={{
-                fontSize: 14,
-                color: sub.completed ? 'var(--text-muted)' : 'var(--text-secondary)',
-                textDecoration: sub.completed ? 'line-through' : 'none',
-              }}>
+                border: '2px solid var(--border)',
+                background: 'transparent',
+              }} />
+              <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
                 {sub.title}
               </span>
             </div>
