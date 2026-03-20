@@ -21,6 +21,7 @@ export default function DayPage() {
   const profile = useQuestStore(s => s.profile)
   const ensureTodayRecord = useQuestStore(s => s.ensureTodayRecord)
   const resetTaskStatus = useQuestStore(s => s.resetTaskStatus)
+  const toggleSubtask = useQuestStore(s => s.toggleSubtask)
 
   const [activeTask, setActiveTask] = useState<Task | null>(null)
 
@@ -99,7 +100,7 @@ export default function DayPage() {
           ) : (
             dayTasks.map(task => {
               const dayTask = record?.tasks.find(t => t.taskId === task.id) ?? {
-                taskId: task.id, status: null, honestCheck: false, completedAt: null,
+                taskId: task.id, status: null, honestCheck: false, completedAt: null, subtaskCompletions: {},
               }
               return (
                 <div key={task.id}>
@@ -107,6 +108,7 @@ export default function DayPage() {
                     task={task}
                     dayTask={dayTask}
                     onCheckboxTap={() => handleCheckboxTap(task)}
+                    onSubtaskToggle={isToday ? (subtaskId) => toggleSubtask(task.id, subtaskId) : undefined}
                     isPerfectDay={isPerfectDay}
                   />
                   {/* Notes inline below card */}

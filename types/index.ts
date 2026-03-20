@@ -32,6 +32,7 @@ export interface DayTask {
   status: CompletionStatus | null   // null = not yet acted on
   honestCheck: boolean
   completedAt: string | null
+  subtaskCompletions: Record<string, boolean>  // subtaskId → done
 }
 
 export interface DayRecord {

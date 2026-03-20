@@ -32,6 +32,7 @@ interface QuestStore {
   completeTask: (taskId: string, status: 'completed' | 'partial') => void
   notYetTask: (taskId: string) => void
   resetTaskStatus: (taskId: string) => void
+  toggleSubtask: (taskId: string, subtaskId: string) => void
 
   // Pinned dates
   addPinnedDate: (label: string, date: string) => void
@@ -121,6 +122,7 @@ export const useQuestStore = create<QuestStore>()(
           status: null,
           honestCheck: false,
           completedAt: null,
+          subtaskCompletions: {},
         }))
 
         set(s => ({
@@ -171,6 +173,20 @@ export const useQuestStore = create<QuestStore>()(
           return { history: { ...s.history, [today]: { ...record, tasks: updatedTasks } } }
         })
         get().recalcStats()
+      },
+
+      toggleSubtask: (taskId, subtaskId) => {
+        const today = todayKey()
+        set(s => {
+          const record = s.history[today]
+          if (!record) return s
+          const updatedTasks = record.tasks.map(t => {
+            if (t.taskId !== taskId) return t
+            const completions = t.subtaskCompletions ?? {}
+            return { ...t, subtaskCompletions: { ...completions, [subtaskId]: !completions[subtaskId] } }
+          })
+          return { history: { ...s.history, [today]: { ...record, tasks: updatedTasks } } }
+        })
       },
 
       resetTaskStatus: (taskId) => {

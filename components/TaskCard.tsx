@@ -9,6 +9,7 @@ interface Props {
   task: Task
   dayTask: DayTask
   onCheckboxTap: () => void
+  onSubtaskToggle?: (subtaskId: string) => void
   isPerfectDay?: boolean
 }
 
@@ -18,12 +19,14 @@ const catColor = {
   fun:    'var(--green)',
 }
 
-export default function TaskCard({ task, dayTask, onCheckboxTap, isPerfectDay }: Props) {
+export default function TaskCard({ task, dayTask, onCheckboxTap, onSubtaskToggle, isPerfectDay }: Props) {
   const done = dayTask.status === 'completed'
   const partial = dayTask.status === 'partial'
   const acted = done || partial
   const [expanded, setExpanded] = useState(false)
   const hasSubtasks = task.subtasks.length > 0
+  const completions = dayTask.subtaskCompletions ?? {}
+  const doneCount = Object.values(completions).filter(Boolean).length
 
   return (
     <div style={{ marginBottom: 10 }}>
@@ -89,7 +92,7 @@ export default function TaskCard({ task, dayTask, onCheckboxTap, isPerfectDay }:
             )}
             {hasSubtasks && (
               <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                {task.subtasks.length} sub quest{task.subtasks.length !== 1 ? 's' : ''}
+                {doneCount}/{task.subtasks.length} sub quest{task.subtasks.length !== 1 ? 's' : ''}
               </span>
             )}
             {task.priority === 'high' && (
@@ -98,7 +101,7 @@ export default function TaskCard({ task, dayTask, onCheckboxTap, isPerfectDay }:
           </div>
         </div>
 
-        {/* Right side: expand indicator (if subtasks) + edit chevron */}
+        {/* Right side: expand chevron + edit icon */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
           {hasSubtasks && (
             <button
@@ -132,22 +135,43 @@ export default function TaskCard({ task, dayTask, onCheckboxTap, isPerfectDay }:
           borderTop: 'none',
           padding: '8px 16px 12px 56px',
         }}>
-          {task.subtasks.map((sub, idx) => (
-            <div key={sub.id} style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              padding: '7px 0',
-              borderBottom: idx < task.subtasks.length - 1 ? '1px solid var(--border)' : 'none',
-            }}>
-              <div style={{
-                width: 18, height: 18, borderRadius: 9, flexShrink: 0,
-                border: '2px solid var(--border)',
-                background: 'transparent',
-              }} />
-              <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
-                {sub.title}
-              </span>
-            </div>
-          ))}
+          {task.subtasks.map((sub, idx) => {
+            const isDone = completions[sub.id] ?? false
+            return (
+              <button
+                key={sub.id}
+                className="btn-press"
+                onClick={() => onSubtaskToggle?.(sub.id)}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '8px 0',
+                  borderBottom: idx < task.subtasks.length - 1 ? '1px solid var(--border)' : 'none',
+                  background: 'none', border: 'none',
+                  borderBottomWidth: idx < task.subtasks.length - 1 ? 1 : 0,
+                  borderBottomStyle: 'solid',
+                  borderBottomColor: 'var(--border)',
+                  cursor: onSubtaskToggle ? 'pointer' : 'default',
+                  textAlign: 'left',
+                }}
+              >
+                <div style={{
+                  width: 18, height: 18, borderRadius: 9, flexShrink: 0,
+                  border: `2px solid ${isDone ? catColor[task.category] : 'var(--border)'}`,
+                  background: isDone ? catColor[task.category] : 'transparent',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  {isDone && <span style={{ color: '#000', fontSize: 10, fontWeight: 800 }}>✓</span>}
+                </div>
+                <span style={{
+                  fontSize: 14,
+                  color: isDone ? 'var(--text-muted)' : 'var(--text-secondary)',
+                  textDecoration: isDone ? 'line-through' : 'none',
+                }}>
+                  {sub.title}
+                </span>
+              </button>
+            )
+          })}
         </div>
       )}
     </div>
