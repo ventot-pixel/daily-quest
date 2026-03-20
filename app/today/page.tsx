@@ -186,6 +186,7 @@ function StatPill({ label, value, color }: { label: string; value: string; color
 }
 
 function WeekStrip({ history }: { history: Record<string, any> }) {
+  const router = useRouter()
   const today = todayKey()
   const days = []
   for (let i = 6; i >= 0; i--) {
@@ -198,7 +199,7 @@ function WeekStrip({ history }: { history: Record<string, any> }) {
 
   return (
     <div style={{ padding: '0 20px 20px', display: 'flex', gap: 6 }}>
-      {days.map((key, i) => {
+      {days.map((key) => {
         const rec = history[key]
         const isToday = key === today
         const hasTasks = rec && rec.tasks.length > 0
@@ -208,7 +209,15 @@ function WeekStrip({ history }: { history: Record<string, any> }) {
         const dow = new Date(key + 'T12:00:00').getDay()
 
         return (
-          <div key={key} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <button
+            key={key}
+            className="btn-press"
+            onClick={() => router.push(`/day/${key}`)}
+            style={{
+              flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+              background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0',
+            }}
+          >
             <span style={{ fontSize: 11, fontWeight: 600, color: isToday ? 'var(--text-primary)' : 'var(--text-muted)' }}>
               {labels[dow]}
             </span>
@@ -218,7 +227,7 @@ function WeekStrip({ history }: { history: Record<string, any> }) {
               background: dotColor,
               border: isToday ? '2px solid var(--text-primary)' : 'none',
             }} />
-          </div>
+          </button>
         )
       })}
     </div>
